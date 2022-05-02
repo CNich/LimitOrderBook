@@ -75,15 +75,20 @@ struct LimitTree {
     
     // place a limit order in the tree
     void placeLimit(Order* order) {
+        // if there are no orders in the tree currently:
         if (limitmap.count(order->price) == 0) {
             order->limit = new Limit(order);
             // 
             BinarySearchTree::insert(
-                // change address of root to pointer to pointer of tree node
+                // from Limit** (which is &root) to BST::Node<Price>**.
+                // reinterpret_cast converts given pointer into another type
+                // and also converts the type of variable pointed by the given pointer
                 reinterpret_cast<BinarySearchTree::Node<Price>**>(&root),
                 // 
                 static_cast<BinarySearchTree::Node<Price>*>(order->limit)
             );
+            set_best<side>(&best, order->limit);
+            
         }
     }
 };
