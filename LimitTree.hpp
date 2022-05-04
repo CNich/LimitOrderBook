@@ -58,6 +58,9 @@ bool can_match<Side::Sell>(Price limit, Price market) {
     return ( (market == 0) || (market >= limit) );
 }
 
+// I.c. find best price in the binary tree
+
+
 // --------------------------------
 // II. limit tree implementation where 1 node is Limit struct
 // --------------------------------
@@ -88,8 +91,46 @@ struct LimitTree {
                 static_cast<BinarySearchTree::Node<Price>*>(order->limit)
             );
             set_best<side>(&best, order->limit);
-            
+
         }
     }
+
+    // clearing the unordered map of <Price, Limit*>
+    void clear() {
+        // https://www.cplusplus.com/reference/unordered_map/unordered_map/begin/
+        for(auto item = limitmap.begin(); item != limitmap.end(); item++) {
+            delete item->second;
+        }
+        // unordered map destructor called, size becomes 0
+        limitmap.clear();
+
+        // reset 
+        root = nullptr;
+        best = nullptr;
+        count = 0;
+        volume = 0;
+    }
+
+    // find best price in the tree
+
+    // cancel order
+    void cancel(Order* order) {
+        auto _limit = order->limit;
+
+        // if input order is the only order in the tree
+        if(order->prev == nullptr && order->next == nullptr) {
+            // remove the node from tree
+            BinarySearchTree::remove(
+                reinterpret_cast<BinarySearchTree::Node<Price>**>(&root),
+                static_cast<BinarySearchTree::Node<Price>*>(limit_)
+            );
+            // canceled order might be the best price,
+            // so replace it if it's the case
+            if (best == limit_){
+                // find best price after taking out the canceled order
+            }
+        }
+    }
+
 };
 }
