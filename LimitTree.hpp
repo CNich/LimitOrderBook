@@ -38,6 +38,9 @@ void set_best<Side::Sell>(Limit** lowest_sell, Limit* limit) {
     else if (limit->key < (*lowest_sell)->key) *lowest_sell = limit;
 }
 
+
+
+
 // I.b. can buy/sell orders match?
 
 // whether or not buy and sell orders can match
@@ -58,8 +61,32 @@ bool can_match<Side::Sell>(Price limit, Price market) {
     return ( (market == 0) || (market >= limit) );
 }
 
+
+
+
+
 // I.c. find best price in the binary tree
 
+template<Side side>
+void find_best(Limit** best);
+
+template<>
+void find_best<Side::Buy>(Limit** highest_buy) {
+
+}
+template<>
+void find_best<Side::Sell>(Limit** lowest_sell) {
+
+}
+
+/*
+template<>
+void set_best<Side::Sell>(Limit** lowest_sell, Limit* limit) {
+    if (*lowest_sell == nullptr || limit->key < (*lowest_sell)->key) {
+        *lowest_sell = limit;
+    }
+}
+*/
 
 // --------------------------------
 // II. limit tree implementation where 1 node is Limit struct
@@ -91,7 +118,21 @@ struct LimitTree {
                 static_cast<BinarySearchTree::Node<Price>*>(order->limit)
             );
             set_best<side>(&best, order->limit);
-
+            limitmap.emplace(order->limit->key, order->limit);
+        } else {
+            order->limit = limitmap.at(order->price);
+            ++order->limit->count;
+            order->limit->volume += order->quantity;
+            DoublyLinkedList::append(
+                reinterpret_cast<DoublyLinkedList::Node**>(&order->limit->order_tail),
+                static_cast<DoublyLinkedList::Node*>(order)
+            );
+        }
+        // updating variables for whole tree
+        ++count;
+        volume += order->quantity;
+        if (best != nullptr) {
+            last_best_price = best->key;
         }
     }
 
@@ -122,13 +163,16 @@ struct LimitTree {
             // remove the node from tree
             BinarySearchTree::remove(
                 reinterpret_cast<BinarySearchTree::Node<Price>**>(&root),
-                static_cast<BinarySearchTree::Node<Price>*>(limit_)
+                static_cast<BinarySearchTree::Node<Price>*>(_limit)
             );
             // canceled order might be the best price,
             // so replace it if it's the case
-            if (best == limit_){
+            if (best == _limit){
                 // find best price after taking out the canceled order
             }
+            // erase element in map
+            limitmap.erase(_limit->key);
+            delete _limit;
         }
     }
 
