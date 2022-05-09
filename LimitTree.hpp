@@ -1,3 +1,6 @@
+#ifndef LIMITTREE_HPP
+#define LIMITTREE_HPP
+
 #include "binary_search_tree.hpp"
 #include "LOB_buildingBlocks.hpp"
 #include <unordered_map>
@@ -245,3 +248,5 @@ struct LimitTree {
 
 };
 }
+
+#endif
