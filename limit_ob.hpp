@@ -64,6 +64,14 @@ class LimitOrderBook {
             selltree.placeLimit(&ordermap.at(order_id));
         }
 
+        inline void limit(Side side, UID order_id, Quantity quantity, Price price) {
+            switch (side) {
+                case Side::Sell: return limit_sell(order_id, quantity, price);
+                case Side::Buy: return limit_buy(order_id, quantity, price);
+            }
+        }
+            
+
         inline bool has(UID order_id) const {
             return ordermap.count(order_id);
         }
@@ -72,6 +80,24 @@ class LimitOrderBook {
             return ordermap.at(order_id);
         }
 
+
+        inline void cancel(UID id) {
+            auto order = &ordermap.at(id);
+            switch (order->side) {
+                case Side::Sell: {
+                    selltree.cancel(order);
+                    break;
+                }
+                case Side::Buy: {
+                    buytree.cancel(order);
+                    break;
+                }
+            }
+            ordermap.erase(id);
+        }
+
+        // to add: market orders, market sell buy and 
+        // some function that returns best buy/sell price
 };
 
 }
