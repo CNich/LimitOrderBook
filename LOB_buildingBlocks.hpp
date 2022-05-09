@@ -21,12 +21,12 @@ Side operator!(Side side) {
 typedef uint64_t UID; // unique identifier of the order
 typedef uint32_t Quantity; // quantity of ordered equities
 typedef uint64_t Price; // at what price
-//typedef int Price;
 typedef uint32_t Count; // number of orders
-typedef uint64_t Volume; // 
+typedef uint64_t Volume; // number of orders that was actually executed
 
 struct Limit;
 
+// Order inherits from DLL::Node
 struct Order : DoublyLinkedList::Node {
     const UID uid = 0;
     const Side side = Side::Sell;
@@ -50,8 +50,13 @@ struct Limit : BinarySearchTree::Node<Price> {
     Order* order_head = nullptr;
     Order* order_tail = nullptr;
     
+    // constructor
     Limit() : BinarySearchTree::Node<Price>() {}
 
+    // prevent auto type conversion
+    // for any func that receives Limit struct as
+    // input, have to make sure that any other input
+    // type raises error
     explicit Limit(Order* order) :
     BinarySearchTree::Node<Price>(order->price),
     count(1),

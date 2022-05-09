@@ -72,11 +72,25 @@ void find_best(Limit** best);
 
 template<>
 void find_best<Side::Buy>(Limit** highest_buy) {
-
+    if ((*highest_buy)->parent == nullptr) {
+        *highest_buy = static_cast<Limit*>((*highest_buy)->left);
+    } else {
+        *highest_buy = static_cast<Limit*>((*highest_buy)->parent);
+    }
+    if (*highest_buy != nullptr) {
+        *highest_buy = static_cast<Limit*>(BinarySearchTree::max(*highest_buy));
+    }
 }
 template<>
 void find_best<Side::Sell>(Limit** lowest_sell) {
-
+    if ((*lowest_sell)->parent == nullptr) {
+        *lowest_sell = static_cast<Limit*>((*lowest_sell)->right);
+    } else {
+        *lowest_sell = static_cast<Limit*>((*lowest_sell)->parent);
+    }
+    if (*lowest_sell != nullptr) {
+        *lowest_sell = static_cast<Limit*>(BinarySearchTree::min(*lowest_sell));
+    }
 }
 
 /*
@@ -101,11 +115,14 @@ struct LimitTree {
     Volume volume = 0;
 
     Limit* root = nullptr;
+
     Limit* best = nullptr;
     
     // place a limit order in the tree
     void placeLimit(Order* order) {
-        // if there are no orders in the tree currently:
+        // if given key is not found in the map
+        // map.count(key) returns 1 if key is found, 0 otherwise
+        // if given price is not found in the map
         if (limitmap.count(order->price) == 0) {
             order->limit = new Limit(order);
             // 
@@ -114,14 +131,15 @@ struct LimitTree {
                 // reinterpret_cast converts given pointer into another type
                 // and also converts the type of variable pointed by the given pointer
                 reinterpret_cast<BinarySearchTree::Node<Price>**>(&root),
-                // 
+                // make sure order->limit is pointer to node
                 static_cast<BinarySearchTree::Node<Price>*>(order->limit)
             );
             set_best<side>(&best, order->limit);
             limitmap.emplace(order->limit->key, order->limit);
-        } else {
+        } else { // if, in the map, the price of the order is found
             order->limit = limitmap.at(order->price);
             ++order->limit->count;
+            
             order->limit->volume += order->quantity;
             DoublyLinkedList::append(
                 reinterpret_cast<DoublyLinkedList::Node**>(&order->limit->order_tail),
@@ -169,11 +187,60 @@ struct LimitTree {
             // so replace it if it's the case
             if (best == _limit){
                 // find best price after taking out the canceled order
+                find_best<side>(&best);
             }
             // erase element in map
             limitmap.erase(_limit->key);
             delete _limit;
+        } else {
+            --_limit->count;
+            _limit->volume -= order->quantity;
+            // remove order from dll
+            DoublyLinkedList::remove(
+                reinterpret_cast<DoublyLinkedList::Node**>(&_limit->order_head),
+                reinterpret_cast<DoublyLinkedList::Node**>(&_limit->order_tail),
+                static_cast<DoublyLinkedList::Node*>(order)
+            );
         }
+
+        --count;
+        volume -= order->quantity;
+        if (best != nullptr) {
+            last_best_price = best->key;
+        }
+
+    }
+
+    template<typename Callback>
+    void market(Order* order, Callback did_fill) {
+        while (best != nullptr && can_match<side>(best->key, order->price)) {
+            auto match = best->order_head;
+            // if best price order quantity >= input order quantity
+            if (match->quantity >= order->quantity) {
+                if (match->quantity == order->quantity) {
+                    cancel(match);
+                    did_fill(match->uid);
+                } else {
+                    match->quantity -= order->quantity;
+                    match->limit->volume -= order->quantity;
+                    volume -= order->quantity;
+                }
+                order->quantity = 0;
+                return;
+            }
+            order->quantity -= match->quantity;
+            cancel(match);
+            did_fill(match->uid);
+        }
+    }
+
+    inline Volume volume_at(Price price) const {
+        if (limitmap.count(price)) return limitmap.at(price)->volume;
+        return 0;
+    }
+    inline Count count_at(Price price) const {
+        if (limitmap.count(price)) return limitmap.at(price)->count;
+        return 0;
     }
 
 };

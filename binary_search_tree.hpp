@@ -41,7 +41,7 @@ struct Node {
 ///
 template<typename Key>
 void insert(Node<Key>** root, Node<Key>* node) {
-    if (*root == nullptr) {  // root is null, set pointer
+    if (*root == nullptr) {  // root is null, value of root is set to pointer to input node
         *root = node;
         return;
     }

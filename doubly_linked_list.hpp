@@ -74,6 +74,7 @@ inline bool is_empty(Node* head) { return head == nullptr; }
 /// @param head the head of the list to get the size of
 /// @returns the number of elements in the list
 ///
+/*
 inline int count(Node* head) {
     int count = 0;
     while (head != nullptr) {  // head is not null
@@ -82,6 +83,7 @@ inline int count(Node* head) {
     }
     return count;
 }
+*/
 
 }  // namespace DLL
 
