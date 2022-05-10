@@ -98,6 +98,45 @@ class LimitOrderBook {
 
         // to add: market orders, market sell buy and 
         // some function that returns best buy/sell price
+        
+        // market orders:
+        // sell:
+        inline void market_sell(UID id, Quantity q) {
+            Order order{id, Side::Sell, q, 0}; // free sell order
+            // lambda
+            buytree.market(&order, [&](UID uid){ordermap.erase(uid);});
+        }
+        inline void market_buy(UID id, Quantity q) {
+            Order order{id, Side::Buy, q, 0};
+            selltree.market(&order, [&](UID id){ordermap.erase(id);});
+        }
+        inline void market(Side side, UID id, Quantity q) {
+            switch (side) {
+                case Side::Buy: {market_buy(id, q);};
+                case Side::Sell: {market_sell(id, q);};
+            }
+        }
+
+
+        // get best buy/sell prices
+        inline Price best_sell() const {
+            if (selltree.best == nullptr) {
+                return 0;
+            }
+            return selltree.best->key;// cuz comparable key of tree is price
+        }
+        inline Price best_buy() const {
+            if (buytree.best == nullptr) {
+                return 0;
+            }
+            return buytree.best->key;
+        }
+        inline Price best(Side side) const {
+            switch (side) {
+                case Side::Sell: {return best_sell();};
+                case Side::Buy: {return best_buy();};
+            }
+        }
 };
 
 }
