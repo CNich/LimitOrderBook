@@ -66,8 +66,12 @@ class LimitOrderBook {
 
         inline void limit(Side side, UID order_id, Quantity quantity, Price price) {
             switch (side) {
-                case Side::Sell: return limit_sell(order_id, quantity, price);
-                case Side::Buy: return limit_buy(order_id, quantity, price);
+                case Side::Sell:
+                    // std::cout<<"Side: Sell, "<<"UID: "<<order_id<<", "<<"Quantity: "<<quantity<<", "<<"Price: "<<price<<"\n";
+                    return limit_sell(order_id, quantity, price);
+                case Side::Buy:
+                    //std::cout<<"Side: Buy, "<<"UID: "<<order_id<<", "<<"Quantity: "<<quantity<<", "<<"Price: "<<price<<"\n";
+                    return limit_buy(order_id, quantity, price);
             }
         }
             

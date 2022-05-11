@@ -4,6 +4,7 @@
 #include <vector>
 #include <random>
 #include "limit_ob.hpp"
+#include <chrono>
 
 using namespace LOB;
 
@@ -24,13 +25,18 @@ int main() {
     auto price = std::normal_distribution<double>(500, 20);
     auto quantity = std::normal_distribution<double>(1000,200);
     LimitOrderBook limitob;
-    for (int i = 0; i < 4000; i++) {
+    int num_orders = 4000000;
+
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+    for (int i = 0; i < num_orders; i++) {
         auto p = static_cast<Price>(price(gen));
         auto q = static_cast<Quantity>(quantity(gen));
-        limitob.limit(Side::Buy, 0, 100, 500);
-        // what to print?
+        limitob.limit(Side::Buy, 0, p, q);
     }
+    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
     
-
+    std::cout<<"Time taken to submit "<<num_orders<<" orders: " \
+    << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count()<< "us" << std::endl;;
+    return 0;
     
 }
