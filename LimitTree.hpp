@@ -4,13 +4,15 @@
 #include "binary_search_tree.hpp"
 #include "LOB_buildingBlocks.hpp"
 #include <unordered_map>
-//#include <boost/container/falt_map>
+//#include <boost/container/flat_map>
 //using ska::flat_hash_map; // throws weird ass error 
 
 
 namespace LOB {
 
 typedef std::unordered_map<Price, Limit*> PriceLimitMap;
+//typedef boost::intrusive::flat_map<Price, Limit*> PriceLimitMap;
+
 // might have to change map, check:
 // https://medium.com/applied/gist-better-than-unordered-map-1ad07b0a81b7
 // for hash map performances
