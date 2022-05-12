@@ -143,6 +143,9 @@ struct LimitTree {
             limitmap.emplace(order->limit->key, order->limit);
         } else { // if, in the map, the price of the order is found
             order->limit = limitmap.at(order->price);
+
+            // ++i increments and then returns the incremented value
+            // i++ increments i too but returns i before increment
             ++order->limit->count;
             
             order->limit->volume += order->quantity;
