@@ -32,11 +32,12 @@ int main() {
         auto p = static_cast<Price>(price(gen));
         auto q = static_cast<Quantity>(quantity(gen));
         limitob.limit(Side::Buy, 0, p, q);
+        limitob.cancel(0);
     }
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
     
     std::cout<<"Time taken to submit "<<num_orders<<" orders: " \
-    << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count()<< "us" << std::endl;;
+    << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count()<< "us" << std::endl;
     return 0;
     
 }
