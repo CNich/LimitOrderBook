@@ -15,10 +15,10 @@ set(SOURCES
     main.cpp
     doubly_linked_list.hpp
     LimitTree.hpp
-    LOB_buildingBlocks.hpp.gch
+    LOB_buildingBlocks.hpp
     pointercastTest.cpp
     flat_hash_map.hpp
-    LimitTree.hpp.gch
+    LimitTree.hpp
     csv_reader.cpp
 )
 
@@ -26,4 +26,3 @@ set(SOURCES
 add_library(lib_lob ${SOURCES})
 add_executable(main main.cpp)
 add_executable(csv_reader csv_reader.cpp)
-

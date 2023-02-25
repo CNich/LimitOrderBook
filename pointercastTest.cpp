@@ -2,7 +2,7 @@
 using namespace std;
 
 int main() {
-    
+
     int a = 23;
     int* pa = &a;
     char* pb = reinterpret_cast<char*> (pa);

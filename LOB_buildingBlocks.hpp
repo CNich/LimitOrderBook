@@ -19,12 +19,23 @@ Side operator!(Side side) {
 // -----------------------------------------
 
 typedef uint64_t UID; // unique identifier of the order
-typedef uint32_t Quantity; // quantity of ordered equities
+typedef uint64_t Quantity; // quantity of ordered equities
 typedef uint64_t Price; // at what price
-typedef uint32_t Count; // number of orders
+typedef uint64_t Count; // number of orders
 typedef uint64_t Volume; // number of orders that was actually executed
 
 struct Limit;
+struct Order;
+
+// Holds position of sorted orders
+struct SortedOrder: DoublyLinkedList::Node {
+    Order* order= nullptr;
+    SortedOrder() : DoublyLinkedList::Node() { }
+    SortedOrder(Order* _order) :
+        DoublyLinkedList::Node(),
+        order(_order) {}
+};
+
 
 // Order inherits from DLL::Node
 struct Order : DoublyLinkedList::Node {
@@ -33,6 +44,7 @@ struct Order : DoublyLinkedList::Node {
     Quantity quantity = 0;
     const Price price = 0;
     Limit* limit = nullptr;
+    SortedOrder* sorted_order = nullptr;
 
     // constructor:
     Order() : DoublyLinkedList::Node() { }
@@ -49,7 +61,7 @@ struct Limit : BinarySearchTree::Node<Price> {
     Volume volume = 0;
     Order* order_head = nullptr;
     Order* order_tail = nullptr;
-    
+
     // constructor
     Limit() : BinarySearchTree::Node<Price>() {}
 

@@ -85,6 +85,40 @@ inline int count(Node* head) {
 }
 */
 
+inline void insert_after(Node* prev_node, Node* new_node){
+    if(prev_node->next != nullptr){
+        new_node->next = prev_node->next;
+        prev_node->next->prev = new_node;
+    }
+    prev_node->next = new_node;
+    new_node->prev = prev_node;
+}
+
+/*
+ * I THINK THIS IS WHAT IS CAUSING ALL THE PROBLEMS (because head/tail weren't
+ * added properly) SO FIX EDGE CASES!
+ *
+ */
+inline void insert_before(Node* next_node, Node* new_node){
+    if(next_node->prev != nullptr){
+        next_node->prev->next = new_node;
+        new_node->prev = next_node->prev;
+    }
+    new_node->next = next_node;
+    next_node->prev = new_node;
+}
+
+inline void headless_remove(Node* node){
+    if (node->prev != nullptr)  // has previous node
+        node->prev->next = node->next;
+    if (node->next != nullptr)  // has next node
+        node->next->prev = node->prev;
+    node->next = nullptr;
+    node->prev = nullptr;
+}
+
+
+
 }  // namespace DLL
 
 #endif  // DOUBLY_LINKED_LIST_HPP
