@@ -36,9 +36,11 @@ int main() {
     std::cout<<"Time taken to submit "<<num_orders<<" orders: " \
     << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count()<< "us" << std::endl;
 
-    double facs[5] = {0.0, 0.01, 0.02, 0.05, 0.1};
-    limitob.market_impact(Side::Buy, facs, 5);
-    limitob.market_impact(Side::Sell, facs, 5);
+    int L = 5;
+    double facs[L] = {0.0, 0.01, 0.02, 0.05, 0.1};
+    Volume c_vols[L];
+    limitob.market_impact(Side::Buy, c_vols, facs, 5);
+    limitob.market_impact(Side::Sell, c_vols, facs, 5);
 
     limitob.print_sorted(Side::Buy);
 

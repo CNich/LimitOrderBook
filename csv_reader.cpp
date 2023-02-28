@@ -7,36 +7,43 @@
 #include "limit_ob.hpp"
 
 
-int parse_csv_line(char* line, char** values) {
-    int column = 0;
-    char* value = strtok(line, ",");
-    while (value != NULL) {
-        values[column++] = value;
-        value = strtok(NULL, ",");
-    }
-    return column;
-}
-
-
-
 int main(int argc, char *argv[]) {
     LOB::LimitOrderBook limitob;
     LOB::LimitOrderBook limitob_control;
     std::cout<<"==============================\n";
     std::cout<<argv[1]<<"\n";
     std::cout<<"==============================\n";
-    std::cout<<argv[2]<<"\n";
-    std::cout<<"==============================\n";
-    uint64_t init_snap_ts = 1635552289073;
-    uint64_t max_ts = 1635557445953;
-    std::cout<<"loaded snap\n";
-    limitob.load_csv(1, argv[1], 0, init_snap_ts);
-    std::cout<<"loaded update\n";
-    limitob.load_csv(1, argv[2], 0, max_ts);
+    std::string base_filename = std::string(argv[1]);
+    auto snap_csv = base_filename + "_snap.csv";
+    auto depth_csv = base_filename + "_update.csv";
 
+
+    std::cout<<"loaded snap\n";
+    limitob.load_csv(1, snap_csv.c_str(), 0, -1, "");
+    std::cout<<"loaded update\n";
+    limitob.load_csv(1, depth_csv.c_str(), 1, 0, base_filename);
+
+    return 0;
+}
+
+int test(int argc, char *argv[]) {
+    // "../binance_csv_data/BTCUSDT_T_DEPTH_2021-10-30/BTCUSDT_T_DEPTH_2021-10-30_depth"
+    std::string base_filename = std::string(argv[1]);
+    auto snap_csv = base_filename + "_snap.csv";
+    auto depth_csv = base_filename + "_update.csv";
+
+    LOB::LimitOrderBook limitob;
+    LOB::LimitOrderBook limitob_control;
+    // uint64_t init_snap_ts = 1635552289073;
+    uint64_t max_ts = 1635557445953;
+
+    std::cout<<"loaded snap WITHOUT init_snap_ts\n";
+    limitob.load_csv(1, snap_csv.c_str(), 0, -1, "");
+    std::cout<<"loaded update\n";
+    limitob.load_csv(1, depth_csv.c_str(), 0, max_ts, base_filename);
     std::cout<<"loading control\n";
     limitob_control.set_min_ts(max_ts);
-    limitob_control.load_csv(1, argv[1], 0, max_ts);
+    limitob_control.load_csv(1, snap_csv.c_str(), 0, max_ts, base_filename);
 
     LOB::Price p[11] = {61998740, 61997210, 61996090, 61995670, 61995470, 61995010, 61995000, 61994200, 61993910, 61993900, 61992080};
     int num_errors = 0;
@@ -64,3 +71,4 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
+

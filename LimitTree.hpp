@@ -399,9 +399,9 @@ struct LimitTree {
         return 0;
     }
 
-    inline void market_impact(double* facs, int L){
+    inline void market_impact(Volume* c_vols, double* facs, int L){
         int num_nodes_visited = 0;
-        Volume c_vols[L];
+        //Volume c_vols[L];
         for(unsigned int i=0; i < L; i++){
             c_vols[i] = 0;
         }
@@ -409,28 +409,31 @@ struct LimitTree {
         char* pside;
 
         Price prices[L];
-        for(unsigned int i=0; i < L; i++){
-            switch (side) {
-                case Side::Buy:
+        switch (side) {
+            case Side::Buy:
+                for(unsigned int i=0; i < L; i++){
                     prices[i] = static_cast<Price>(best->key * (1 - facs[i]));
-                    order = best->order_tail;
-                    pside = "buy";
-                    break;
-                case Side::Sell:
+                }
+                order = best->order_tail;
+                pside = "buy";
+                break;
+
+            case Side::Sell:
+                for(unsigned int i=0; i < L; i++){
                     prices[i] = static_cast<Price>(best->key * (1 + facs[i]));
-                    order = best->order_head;
-                    pside = "sell";
-                    break;
+                }
+                order = best->order_head;
+                pside = "sell";
+                break;
             }
-        }
         market_impact_calc<side>(order, c_vols, prices, L, num_nodes_visited);
 
-        std::cout<<"best: " << best->key << "\n";
-        for(unsigned int i=0; i < L; i++){
-            std::cout << "market " << pside << " liquidity at price " << prices[i] << " is volume " << c_vols[i] << "\n";
-        }
-
-        std::cout << num_nodes_visited << " nodes visited.\n";
+        //std::cout<<"best: " << best->key << "\n";
+        //for(unsigned int i=0; i < L; i++){
+        //    std::cout << "market " << pside << " liquidity at price " << prices[i] << " is volume " << c_vols[i] << "\n";
+        //}
+        //
+        //std::cout << num_nodes_visited << " nodes visited.\n";
     }
 
 };
